@@ -4,23 +4,28 @@
  *
  * Purpose : Console mode (command line) program.
  *
- * History : Date      	Reason
- *           07/03/2017 Linked list Practice
+ * History : Date      				Reason
+ *           07/03/2017 			Linked list Practice
  *
- * Issues: No. 			Description 							Solution
- 			#1		Usage of relloc() threw segementation 	Before using relloc() the value
- 					fault.									must be have been initialized with
- 															malooc();	**ref : #122
+ * Issues: No. 										Description 												Solution
+			 			#1	Usage of relloc() threw segementation 		Before using relloc() the value
+			 					fault.																		must be have been initialized with
+ 																													malloc();			**ref : #122
 
- 			#2		Returning struct pointer from f#9		i. Removed the return stmnt inside the
- 					threw segmentation fault.				   blocking clause of the recusive func
- 															   and added at the end. **ref : #141
- 															ii.Removed static keyword from reply and
- 															   returned reply.
+			 			#2	Returning struct pointer from f#9					i. Removed the return stmnt inside the
+			 					threw segmentation fault.				   					blocking clause of the recusive func
+														 															   and added at the end. **ref : #141
+														 															ii.Removed static keyword from reply and
+														 															   returned reply.
+						#3 prevptr was not updating properly.					It was declared as a static variable, so it didn't
+																													re initialize during a new function call. Sol:
+																													Used a global varible instead of local variable.
  **************************************************************************************************************/
-
+/* Headers */
 #include <stdio.h>
 #include <stdlib.h>
+
+/* Function declarations */
 struct node* createNode(int value);
 void insert();
 void InsertBegin();
@@ -34,6 +39,7 @@ void searchIteratively();//f#9
 struct reply* searchRecursively();
 void swapByLinks();
 int checkHead(int n);
+void getNth();
 
 struct node{
 	int data;
@@ -52,7 +58,7 @@ int main(){
 	int option = 999;
 	while(option!=11){
 		printf("\n#1 Insert at the end\n#2 Insert at the beginning\n#3 Insert anywhere");
-		printf("\n#4 Delete a node\n#5 Count iteratively\n#6 Count Recursively");
+		printf("\n#4 Delete a node\n#5 Count iteratively\n#6 Get-Nth Node");
 		printf("\n#7 Search iteratively\n#8 Search recursively\n#9 Swap Links\n#10  Print\n#11  Exit\nEnter the option :");
 		scanf("%d",&option);
 		switch(option){
@@ -78,7 +84,7 @@ int main(){
 				countIteratively();
 				break;
 			case 6:
-				countRecursively(head);
+				getNth();
 				break;
 			case 7:
 				searchIteratively();
@@ -101,6 +107,20 @@ struct node* createNode(int value){
 	temp1->next = NULL;
 	return temp1;
 }
+void getNth(){
+	int n = getInput();
+	int index = 1 ;
+	temp = head;
+	while(temp!= NULL && index != n){
+		temp = temp->next;
+		index++;
+	}
+	if(temp != NULL)
+		printf("\nNode at index %d is %d\n",n,temp->data);
+	else
+		printf("\nIndex out of range\n");
+temp = NULL;
+}
 void searchIteratively(){
 	int n = getInput();
 	temp = head;
@@ -119,7 +139,7 @@ struct reply* searchRecursively(struct node* head, int n){
 	//static struct node *t = NULL;
 	struct reply *r = NULL;
 		index++;
-	if(head == NULL || head->data == n){
+	if(head == NULL || head->data == n ){
 		free(r);
 		r = (struct reply*)malloc(sizeof(struct reply));
 		if(head!=NULL){
