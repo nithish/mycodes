@@ -1,0 +1,12 @@
+
+#1   Insert at the end
+#2   Insert at the beginning
+#3   Insert anywhere
+#4   Delete a node
+#5   Count iteratively
+#6   Get-Nth Node
+#7   Search iteratively
+#8   Search recursively
+#9   Swap Links
+#10  Print
+#11  Exit

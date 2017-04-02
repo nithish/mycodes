@@ -24,7 +24,7 @@
 /* Headers */
 #include <stdio.h>
 #include <stdlib.h>
-
+#include<string.h>
 /* Function declarations */
 struct node* createNode(int value);
 void insert();
@@ -40,6 +40,7 @@ struct reply* searchRecursively();
 void swapByLinks();
 int checkHead(int n);
 void getNth();
+char* getScrOp();
 
 struct node{
 	int data;
@@ -56,10 +57,9 @@ struct node *tail = NULL;
 struct node *temp = NULL;
 int main(){
 	int option = 999;
+	char *menuStr = getScrOp();
 	while(option!=11){
-		printf("\n#1 Insert at the end\n#2 Insert at the beginning\n#3 Insert anywhere");
-		printf("\n#4 Delete a node\n#5 Count iteratively\n#6 Get-Nth Node");
-		printf("\n#7 Search iteratively\n#8 Search recursively\n#9 Swap Links\n#10  Print\n#11  Exit\nEnter the option :");
+		printf("%sEnter an Option :",menuStr);
 		scanf("%d",&option);
 		switch(option){
 			case 1:
@@ -101,6 +101,28 @@ int main(){
 	}
 	return 0;
 }
+char* getScrOp(){
+	FILE *f = fopen("input-ll.txt","r");
+	char* temp = NULL; char* str = NULL;
+	int i = 0; int buff = 30;
+	str = (char*)malloc(buff);
+	str[0] = '\0';
+	if(f == NULL)
+		str = "\nThere was a problem in opening file.\n";
+	else{
+		while((getline(&temp,&buff,f)) != -1){
+				if((str = (char*)realloc(str,(strlen(temp)+strlen(str))+2)) && str == NULL)
+					printf("Problem in reallocating\n" );
+				else{
+					if(str[0] == '\0')
+						strcpy(str,temp);
+					else
+						strcat(str,temp);
+					}
+		}
+	}
+	return str;
+}
 struct node* createNode(int value){
 	struct node* temp1 = (struct node*)malloc(sizeof(struct node));
 	temp1->data = value;
@@ -116,9 +138,9 @@ void getNth(){
 		index++;
 	}
 	if(temp != NULL)
-		printf("\nNode at index %d is %d\n",n,temp->data);
+		printf("Node at index %d is %d\n",n,temp->data);
 	else
-		printf("\nIndex out of range\n");
+		printf("Index out of \n" );
 temp = NULL;
 }
 void searchIteratively(){
