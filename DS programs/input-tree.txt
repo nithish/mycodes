@@ -4,5 +4,6 @@
 #2  In-order Traversal
 #3  Pre-order Traversal
 #4  Post-order Traversal
-#5  Print
+#5  BFS
+#6  Print
 #11 Exit

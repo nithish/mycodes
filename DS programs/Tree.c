@@ -1,6 +1,17 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<string.h>
+//#include "queue.h"
+
+struct node{
+	int data;
+	struct node *left;
+  struct node *right;
+};
+struct Qnode{
+	struct node *n;
+	struct Qnode *next;
+};
 
 void insert();
 int getInput(char* str);
@@ -9,13 +20,45 @@ struct node* insertPoint(struct node *root, int option);
 void inOrder(struct node* root);
 void preOrder(struct node* root);
 void postOrder(struct node* root);
+void BFS();
+struct Qnode* createQNode( struct node* value);
+void enQueue( struct node* data);
+struct node* deQueue();
 
-struct node{
-	int data;
-	struct node *left;
-  struct node *right;
-};
-struct node *root = NULL;
+struct node *root = NULL,*temp = NULL;
+int count = 0;
+struct Qnode *Qhead = NULL;
+struct Qnode *Qtail = NULL;
+struct Qnode *Qtemp = NULL;
+
+struct Qnode* createQNode( struct node* value){
+	struct Qnode* Qtemp1 = (struct Qnode*)malloc(sizeof(struct Qnode));
+	Qtemp1->n = value;
+	Qtemp1->next = NULL;
+	return Qtemp1;
+}
+void enQueue( struct node* n){
+	if(Qhead == NULL){
+		Qhead = createQNode(n);
+		Qtail = Qhead;
+	}
+	else{
+		Qtail->next = createQNode(n);
+		Qtail = Qtail->next;
+	}
+}
+struct node* deQueue(){
+	if(Qhead == NULL)
+			return NULL;
+	else{
+		struct node *n = Qhead->n;
+		Qtemp = Qhead;
+		Qhead = Qhead->next;
+		free(Qtemp);
+	  return n;
+	}
+}
+
 int main(){
   int option = 99;
 	char *menuStr = getScrOp();
@@ -25,6 +68,7 @@ int main(){
     switch (option) {
       case 1:
         insert();
+				count++;
         break;
       case 2:
 				printf("\n");
@@ -42,6 +86,9 @@ int main(){
 				printf("\n");
 				break;
 			case 5:
+				BFS();
+				break;
+			case 6:
 				printf("\n");
       	insertPoint(root,1);
 				printf("\n");
@@ -75,6 +122,19 @@ char* getScrOp(){
 		}
 	}
 	return str;
+}
+void BFS(){
+	struct node *temp = root;
+	int cnt = 0;
+	while (temp != NULL) {
+		printf("-->%d",temp->data);
+		if(temp->left != NULL)
+			enQueue(temp->left);
+		if(temp->right != NULL){
+			enQueue(temp->right);
+		}
+		temp = deQueue();
+	}
 }
 int getInput(char *str){
   int n = 0;
@@ -133,9 +193,13 @@ struct node* insertPoint(struct node *root, int option){
     }else if(option == 1 && root == NULL){
 			return root;
 		}else{
-	      insertPoint(root->left,option);
-				if(option == 1)
+	      temp = insertPoint(root->left,option);
+				if(option == 1){
 					printf("-->%d",root->data);
-				insertPoint(root->right,option);
+					insertPoint(root->right,option);
+				 }
+				 if(temp == NULL && option != 1)
+				 	temp = insertPoint(root->right,option);
+				return temp;
     }
 }

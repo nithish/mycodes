@@ -53,17 +53,16 @@ void display(){
 	printf("NULL\n");
 }
 int deQueue(){
-  int n = tail->data;
-  temp = head;
-  while(temp != NULL && temp->next != NULL && temp->next->next != NULL){
-    temp = temp->next;
-  }
-  temp->next = NULL;
-  tail = temp;
-	if(head == temp)
-		head = NULL;
-  return n;
-}
+	int n = 0;
+	if(head == NULL){
+		printf("\n Queue is Empty");
+	}else{
+		n = head->data;
+		temp = head;
+		head = head->next;
+	  }
+		return n;
+	}
 char* getScrOp(){
 	FILE *f = fopen("input-queue.txt","r");
 	char* temp = NULL; char* str = NULL;

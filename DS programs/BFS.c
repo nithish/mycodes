@@ -4,6 +4,7 @@
 #include "queue.h"
 
 void display();
+struct node *createNode(int n);
 char* getScrOp();
 
 int main(){
@@ -17,7 +18,7 @@ int main(){
       case 1:
         printf("\nEnter the value :");
         scanf("%d",&n);
-        enQueue(n);
+        enQueue(createNode(n));
         break;
       case 2:
 				printf("\n%d\n",deQueue());
@@ -45,6 +46,12 @@ void display(){
 		temp = temp->next;
 	}
 	printf("NULL\n");
+}
+struct node* createNode(int value){
+	struct node* temp1 = (struct node*)malloc(sizeof(struct node));
+	temp1->data = value;
+	temp1->next = NULL;
+	return temp1;
 }
 char* getScrOp(){
 	FILE *f = fopen("input-queue.txt","r");
