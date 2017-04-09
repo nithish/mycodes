@@ -15,13 +15,14 @@ void addRoads(road **roads,long int m);
 int checkExists(int n);
 void createRoad(road *path);
 void calcShorestPath(long int,long int);
-void InitilizeSS(long int *p,long int *d,long int s,long int n);
+void InitilizeSS(long int *p,long long int *d,long int s,long int n);
 Qnode* createQNode( struct node* value);
-void enQueue(city *data);
+void enQueue(city *data,long int v);
 city* deQueue();
 int isQEmpty();
-void InitializeQ(long int n);
-void Relax(city *u, city *v,long int *d,long int *p);
+void InitializeQ(long int n, long long int *d);
+void Relax(city *u, city *v,long long int *d,long int *p);
+void updateQ(long int u,long int v,long int val);
 /*structures declaration*/
 struct node{
   int weight;
@@ -37,6 +38,7 @@ struct newRoad{
 struct qnode{
 	struct node *n;
 	struct qnode *next;
+  long int v;
 };
 /*Global Variables */
 city **map = NULL;
@@ -44,7 +46,7 @@ road **roads = NULL;
 Qnode *Qhead = NULL;
 Qnode *Qtail = NULL;
 Qnode *Qtemp = NULL;
-int c = 0;
+int c = 0;int d = 0;
 /*Queue Implementation starts*/
  Qnode* createQNode(city *value){
 	Qnode* Qtemp1 = (Qnode*)malloc(sizeof(Qnode));
@@ -52,32 +54,56 @@ int c = 0;
 	Qtemp1->next = NULL;
 	return Qtemp1;
 }
-void enQueue(city *n){
+void enQueue(city *n,long int v){
 	if(Qhead == NULL){
 		Qhead = createQNode(n);
+    Qhead->v = v;
 		Qtail = Qhead;
 	}
 	else{
-		Qtail->next = createQNode(n);
-		Qtail = Qtail->next;
+      Qtemp = Qhead;
+      Qnode *Qprev = NULL;
+      while(Qtemp != NULL && Qtemp->v <= v){
+        Qprev = Qtemp;
+        Qtemp = Qtemp->next;
+      }
+      Qnode *plhldr = createQNode(n);
+      plhldr->v = v;
+      if(Qprev == NULL){
+        plhldr->next = Qhead;
+        Qhead = plhldr;
+      }else{
+        plhldr->next = Qprev->next;
+        Qprev->next = plhldr;
+      }
 	}
 }
 city* deQueue(){
-	if(Qhead == NULL)
-			return NULL;
-	else{
-		city *n = Qhead->n;
-		Qtemp = Qhead;
-		Qhead = Qhead->next;
-		free(Qtemp);
-	  return n;
-	}
+  if(Qhead == NULL)
+    return NULL;
+  else{
+    city *n = Qhead->n;
+    Qtemp = Qhead;
+    Qhead = Qhead->next;
+    //free(Qtemp);
+    return n;
+  }
 }
 int isQEmpty(){
   if(Qhead == NULL)
     return 1;
   else
     return 0;
+}
+int isPresentQ(long int v){
+  Qtemp = Qhead;
+  int f = 0;
+  while(Qtemp!=NULL){
+    if(Qtemp->n->name == v)
+      f = 1;
+    Qtemp = Qtemp->next;
+  }
+  return f;
 }
 /*Queue Implementation ends*/
 int main(){
@@ -188,43 +214,83 @@ void createRoad(road *path){
 }
 void calcShorestPath(long int n,long int s){
   long int *p = malloc(n*sizeof(long int));
-  long int *d = malloc(n*sizeof(long int));
+  long long int *d = malloc(n*sizeof(long int));
   long int i = 0;
   InitilizeSS(p,d,s,n);
-  InitializeQ(n);
+  InitializeQ(n,d);
   while(!isQEmpty()){
     city *u = deQueue();
     city *v = u->next;
-    //printf("\n B : %d",u->name);
+    //printf("\n [%ld|%ld]",u->name,u->weight);
     while(u != NULL && v != NULL){
-      Relax(u,v,d,p);
-      //printf(" A : %d",v->name);
+      //if(isPresentQ(v->name))
+        Relax(u,v,d,p);
       v = v->next;
     }
   }
+  printf("\n");
+  print(n);
+  printf("\n");
   for(i = 1;i <= n;i++){
     printf("%d ",d[i]);
   }
 }
-void InitilizeSS(long int *p,long int *d,long int s,long int n){
+void InitilizeSS(long int *p,long long int *d,long int s,long int n){
   long int i = 1;
   while(i <= n){
     p[i] = 0;
-    d[i] = INT_MAX;
+    d[i] = 1500000000;
     i++;
   }
   d[s] = 0;
 }
-void InitializeQ(long int n){
+void InitializeQ(long int n, long long int *d){
   long int i = 1;
   while(i <= n){
-    enQueue(map[i]);
+    enQueue(map[i],d[i]);
+    // city *t = map[i]->next;
+    // while(t != NULL){
+    //   enQueue(t,d[i]);
+    //   t= t->next;
+    //}
     i++;
   }
+  // Qnode *p = Qhead;
+  // while(p!=NULL){
+  //   printf("-->[%ld|%ld]",p->n->name,p->v);
+  //   p = p->next;
+  // }
+  // printf("\n");
 }
-void Relax(city *u, city *v,long int *d,long int *p){
+void Relax(city *u, city *v,long long int *d,long int *p){
+  //printf("\n(%ld > %ld)",d[v->name],(d[u->name]+(v->weight)) );
     if(d[v->name] > (d[u->name]+(v->weight))){
       d[v->name] =  (d[u->name]+(v->weight));
+
       p[v->name] = u->name;
+      updateQ(u->name,v->name,d[v->name]);
     }
+}
+void updateQ(long int u,long int v,long int val){
+  if(d == 2){
+    d = 0;
+    return;
+  }else{
+    d++;
+  Qtemp = Qhead;
+  while(Qtemp != NULL){
+    if(Qtemp->n->name == u){
+      city *adj = Qtemp->n->next;
+      while(adj != NULL){
+        if(adj->name == v){
+          adj->weight = val;
+          break;
+        }
+        adj = adj->next;
+      }
+    }
+    Qtemp = Qtemp->next;
+  }
+  updateQ(v,u,val);
+  }
 }
